@@ -38,6 +38,26 @@ cleaned_img = np.zeros(image.shape,dtype = np.uint8)
 #Turn the pixels in the biggest component to white
 cleaned_img[labels == largest_component] = 255
 
+# morphological didnt work with either image
+
+#hough lines
+hough_iamge = cv2.cvtColor(cleaned_img, cv2.COLOR_BGR2GRAY)
+
+lines = cv2.HoughLinesP(hough_iamge,1,np.pi/180,threshold=200, minLineLength = 100, maxLineGap = 50)
+
+if lines is not None:
+    for i, line in enumerate(lines):
+        x1,y1,x2,y2 = line[0]
+
+        cv2.line(hough_iamge,(x1,y1),(x2,y2),(255,255,255),2)
+
+#running dilation again
+
+kernel = np.ones((3,3),np.uint8)
+
+img_dilation2 = cv2.dilate(hough_iamge,kernel,iterations=1)
+
+
 
 
 
@@ -78,6 +98,17 @@ plt.subplot(3,3,7)
 plt.imshow(cleaned_img, cmap="gray")
 plt.title("cleaned")
 plt.axis("off")
+
+plt.subplot(3,3,8)
+plt.imshow(hough_iamge, cmap="gray")
+plt.title("hough")
+plt.axis("off")
+
+plt.subplot(3,3,9)
+plt.imshow(img_dilation2, cmap="gray")
+plt.title("dilation2")
+plt.axis("off")
+
 
 
 plt.show()
