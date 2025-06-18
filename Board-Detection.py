@@ -60,11 +60,43 @@ img_dilation2 = cv2.dilate(hough_iamge,kernel,iterations=1)
 
 
 
+board_contours, hierarchy = cv2.findContours(canny, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+print(f"Number of contours found: {len(board_contours)}")
+sqaure_centers = list()
 
+board_squared = cleaned_img.copy()
+
+for contour in board_contours:
+    contour_area = cv2.contourArea(contour)
+    print(f"Contour Area: {contour_area}")
+    if cv2.contourArea(contour)<20000:
+        epsilon = 0.02*cv2.arcLength(contour,True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+
+        if len(approx) == 4:
+            pts = [pt[0] for pt in approx]
+
+            pt1= tuple(pts[0])
+            pt2= tuple(pts[1])
+            pt3= tuple(pts[2])
+            pt4= tuple(pts[3])
+
+
+            x,y,w,h = cv2.boundingRect(contour)
+            center_x = (x+(x+w))/2
+            center_y = (y+(y+h))/2
+
+            sqaure_centers.append([center_x,center_y,pt1,pt2,pt3,pt4])
+
+            cv2.line(board_squared,pt1,pt2,(255,255,0),7)
+            cv2.line(board_squared,pt1,pt3,(255,255,0),7)
+            cv2.line(board_squared,pt2,pt4,(255,255,0),7)
+            cv2.line(board_squared,pt3,pt4,(255,255,0),7)
 
 plt.subplot(3,3,1)
-plt.imshow(rgb_image)
-plt.title("RGB")
+plt.imshow(board_squared,cmap = 'grey')
+plt.title("squares")
 plt.axis("off")
 
 plt.subplot(3,3,2)
